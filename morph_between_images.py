@@ -415,9 +415,11 @@ img2 = image_align("img2.jpg", "img2_output.png", landmarks_2, output_size=1024)
 # img1 = cv2.resize(np.array(img1), (320, 240))
 # img2 = cv2.resize(np.array(img2), (320, 240))
 print("resizing img 1")
+img1 = img1.astype(np.uint8)
 img1 = cv2.resize(np.array(img1), (1500, 1500))
 
 print("resizing img 2")
+img2 = img2.astype(np.uint8)
 img2 = cv2.resize(np.array(img2), (1500, 1500))
 
 # points1 = [(50, 50), (200, 50), (125, 200)]
