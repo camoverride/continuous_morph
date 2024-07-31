@@ -410,7 +410,10 @@ img2 = image_align("img2.jpg", "img2_output.png", landmarks_2, output_size=1024)
 # Resize images to reduce computational load
 # img1 = cv2.resize(np.array(img1), (320, 240))
 # img2 = cv2.resize(np.array(img2), (320, 240))
+print("resizing img 1")
 img1 = cv2.resize(np.array(img1), (1500, 1500))
+
+print("resizing img 2")
 img2 = cv2.resize(np.array(img2), (1500, 1500))
 
 # points1 = [(50, 50), (200, 50), (125, 200)]
@@ -423,8 +426,10 @@ frame_rate = 10  # frames per second
 size = (240, 320)
 output_dir = "test_morphs"
 
+print("generating correspondences")
 [size, img1, img2, points1, points2, list3] = generate_face_correspondences(img1, img2)
 
+print("making delauney")
 tri = make_delaunay(size[1], size[0], list3, img1, img2)
 
 generate_morph_sequence(duration, frame_rate, img1, img2, points1, points2, tri, size, output_dir)
