@@ -69,63 +69,37 @@ def generate_morph_sequence(duration, frame_rate, img1, img2, points1, points2, 
 
 def image_align(src_file, dst_file, face_landmarks, output_size=1024, transform_size=4096, enable_padding=True, x_scale=1, y_scale=1, em_scale=0.1, alpha=False):
     lm = np.array(face_landmarks)
-    lm_chin          = lm[0 : 17]  # left-right
-    lm_eyebrow_left  = lm[17 : 22]  # left-right
-    lm_eyebrow_right = lm[22 : 27]  # left-right
-    lm_nose          = lm[27 : 31]  # top-down
-    lm_nostrils      = lm[31 : 36]  # top-down
-    lm_eye_left      = lm[36 : 42]  # left-clockwise
-    lm_eye_right     = lm[42 : 48]  # left-clockwise
-    lm_mouth_outer   = lm[48 : 60]  # left-clockwise
-    lm_mouth_inner   = lm[60 : 68]  # left-clockwise
-
-    eye_left     = np.mean(lm_eye_left, axis=0)
-    eye_right    = np.mean(lm_eye_right, axis=0)
+    eye_left     = np.mean(lm[36:42], axis=0)  # Average left eye landmarks
+    eye_right    = np.mean(lm[42:48], axis=0)  # Average right eye landmarks
     eye_avg      = (eye_left + eye_right) * 0.5
     eye_to_eye   = eye_right - eye_left
-    mouth_left   = lm_mouth_outer[0]
-    mouth_right  = lm_mouth_outer[6]
+
+    mouth_left   = lm[48]  # Left mouth corner
+    mouth_right  = lm[54]  # Right mouth corner
     mouth_avg    = (mouth_left + mouth_right) * 0.5
     eye_to_mouth = mouth_avg - eye_avg
 
     x = eye_to_eye - np.flipud(eye_to_mouth) * [-1, 1]
-    x /= np.hypot(*x)
-    x *= max(np.hypot(*eye_to_eye) * 2.0, np.hypot(*eye_to_mouth) * 1.8)
+    x /= np.linalg.norm(x)
+    x *= max(np.linalg.norm(eye_to_eye) * 2.0, np.linalg.norm(eye_to_mouth) * 1.8)
     x *= x_scale
+
     y = np.flipud(x) * [-y_scale, y_scale]
     c = eye_avg + eye_to_mouth * em_scale
-    quad = np.stack([c - x - y, c - x + y, c + x + y, c + x - y])
-    qsize = np.hypot(*x) * 2
+
+    quad = np.array([c - x - y, c + x - y, c + x + y, c - x + y], dtype=np.float32)
+    quad = np.array([quad[0], quad[1], quad[3], quad[2]])  # Reordering if necessary
 
     img = cv2.imread(src_file)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-    shrink = int(np.floor(qsize / output_size * 0.5))
-    if shrink > 1:
-        rsize = (int(np.rint(img.shape[1] / shrink)), int(np.rint(img.shape[0] / shrink)))
-        img = cv2.resize(img, rsize, interpolation=cv2.INTER_LANCZOS4)
-        quad /= shrink
-        qsize /= shrink
+    # Define source points from the input image
+    src = np.array([[0, 0], [img.shape[1] - 1, 0], [img.shape[1] - 1, img.shape[0] - 1], [0, img.shape[0] - 1]], dtype=np.float32)
 
-    border = max(int(np.rint(qsize * 0.1)), 3)
-    crop = (int(np.floor(min(quad[:,0]))), int(np.floor(min(quad[:,1]))), int(np.ceil(max(quad[:,0]))), int(np.ceil(max(quad[:,1]))))
-    crop = (max(crop[0] - border, 0), max(crop[1] - border, 0), min(crop[2] + border, img.shape[1]), min(crop[3] + border, img.shape[0]))
-    img = img[crop[1]:crop[3], crop[0]:crop[2]]
+    # Compute the perspective transform matrix and apply it
+    matrix = cv2.getPerspectiveTransform(src, quad)
+    img = cv2.warpPerspective(img, matrix, (transform_size, transform_size), flags=cv2.INTER_LINEAR)
 
-    pad = (int(np.floor(min(quad[:,0]))), int(np.floor(min(quad[:,1]))), int(np.ceil(max(quad[:,0]))), int(np.ceil(max(quad[:,1]))))
-    pad = (max(-pad[0] + border, 0), max(-pad[1] + border, 0), max(pad[2] - img.shape[1] + border, 0), max(pad[3] - img.shape[0] + border, 0))
-    if enable_padding and max(pad) > border - 4:
-        pad = np.maximum(pad, int(np.rint(qsize * 0.3)))
-        img = np.pad(img, ((pad[1], pad[3]), (pad[0], pad[2]), (0, 0)), 'reflect')
-        h, w, _ = img.shape
-        y, x, _ = np.ogrid[:h, :w, :1]
-        mask = np.maximum(1.0 - np.minimum(np.float32(x) / pad[0], np.float32(w-1-x) / pad[2]), 1.0 - np.minimum(np.float32(y) / pad[1], np.float32(h-1-y) / pad[3]))
-        blur = qsize * 0.02
-        img = img + (scipy.ndimage.gaussian_filter(img, [blur, blur, 0]).astype(np.float32) - img) * np.clip(mask * 3.0 + 1.0, 0.0, 1.0)
-        img = np.uint8(np.clip(np.rint(img), 0, 255))
-        quad += pad[:2]
-
-    img = cv2.warpPerspective(img, cv2.getPerspectiveTransform(np.array([[0, 0], [w-1, 0], [w-1, h-1], [0, h-1]], dtype='float32'), quad), (transform_size, transform_size), flags=cv2.INTER_LINEAR)
     if output_size < transform_size:
         img = cv2.resize(img, (output_size, output_size), interpolation=cv2.INTER_LANCZOS4)
 
