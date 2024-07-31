@@ -395,12 +395,16 @@ def make_delaunay(f_w, f_h, theList, img1, img2):
 
 landmarks_detector = LandmarksDetector()
 
+print("initial image reading")
 img1 = cv2.imread("img1.jpg")
 img2 = cv2.imread("img2.jpg")
 
+print("initial landmarking")
 landmarks_1 = list(landmarks_detector.get_landmarks("img1.jpg"))[0]
 landmarks_2 = list(landmarks_detector.get_landmarks("img2.jpg"))[0]
 
+
+print("alignment")
 img1 = image_align("img1.jpg", "img1_output.png", landmarks_1, output_size=1024) #x_scale=args.x_scale, y_scale=args.y_scale, em_scale=args.em_scale, alpha=args.use_alpha)
 img2 = image_align("img2.jpg", "img2_output.png", landmarks_2, output_size=1024) #x_scale=args.x_scale, y_scale=args.y_scale, em_scale=args.em_scale, alpha=args.use_alpha)
 
