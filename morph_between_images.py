@@ -6,6 +6,7 @@ import scipy.ndimage
 import dlib
 import PIL.Image
 import time
+import yaml
 
 # Apply affine transform calculated using srcTri and dstTri to src and output an image of size.
 def apply_affine_transform(src, srcTri, dstTri, size):
@@ -396,8 +397,12 @@ def make_delaunay(f_w, f_h, theList, img1, img2):
 
 landmarks_detector = LandmarksDetector()
 
+with open('config.yml', 'r') as file:
+    config = yaml.safe_load(file)
 
-CAM = "webcam"
+
+
+CAM = config["camera"]
 
 if CAM == "webcam":
     cam = cv2.VideoCapture(0)
