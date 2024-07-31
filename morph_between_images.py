@@ -404,7 +404,7 @@ img2 = cv2.resize(np.array(img2), (1000, 1000))
 duration = 5  # seconds
 frame_rate = 10  # frames per second
 
-size = (1000, 1000)
+size = (240, 320)
 output_dir = "test_morphs"
 
 [size, img1, img2, points1, points2, list3] = generate_face_correspondences(img1, img2)
