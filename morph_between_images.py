@@ -392,8 +392,10 @@ img2 = image_align("img2.jpg", "img2_output.png", landmarks_2, output_size=1024)
 # print(img2)
 
 # Resize images to reduce computational load
-img1 = cv2.resize(np.array(img1), (320, 240))
-img2 = cv2.resize(np.array(img2), (320, 240))
+# img1 = cv2.resize(np.array(img1), (320, 240))
+# img2 = cv2.resize(np.array(img2), (320, 240))
+img1 = cv2.resize(np.array(img1), (1000, 1000))
+img2 = cv2.resize(np.array(img2), (1000, 1000))
 
 # points1 = [(50, 50), (200, 50), (125, 200)]
 # points2 = [(60, 60), (210, 60), (135, 210)]
