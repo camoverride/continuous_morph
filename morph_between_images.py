@@ -397,7 +397,15 @@ def make_delaunay(f_w, f_h, theList, img1, img2):
 landmarks_detector = LandmarksDetector()
 
 
-cam = cv2.VideoCapture(0)
+CAM = "webcam"
+
+if CAM == "webcam":
+    cam = cv2.VideoCapture(0)
+elif CAM == "picam":
+    from picamera2 import Picamera2
+    picam2 = Picamera2()
+    picam2.start()
+
 
 cv2.namedWindow("test")
 
@@ -415,7 +423,10 @@ def detect_face(frame):
 
 
 for i in range(2, 20):
-    ret, frame = cam.read()
+    if CAM == "webcam":
+        ret, frame = cam.read()
+    elif CAM == "picam":
+        frame = picam2.capture_array()
 
     face_ = detect_face(frame)
     print(face_)
