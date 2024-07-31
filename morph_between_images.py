@@ -61,6 +61,9 @@ def generate_morph_sequence(duration, frame_rate, img1, img2, points1, points2, 
         res.save(os.path.join(output_dir, f"frame_{j:04d}.jpg"), 'JPEG')
         print("saving!")
         del morphed_frame  # Explicitly delete the variable to free up memory
+        del res
+        del morphed_frame
+        del alpha
         gc.collect()  # Call garbage collector manually
 
 
