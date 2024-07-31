@@ -5,6 +5,7 @@ from PIL import Image
 import scipy.ndimage
 import dlib
 import PIL.Image
+import time
 
 # Apply affine transform calculated using srcTri and dstTri to src and output an image of size.
 def apply_affine_transform(src, srcTri, dstTri, size):
@@ -402,59 +403,80 @@ cv2.namedWindow("test")
 
 CURRENT_IMAGE = "captured_images/1.jpg"
 
+
+def detect_face(frame):
+    predictor_model_path='shape_predictor_68_face_landmarks.dat'
+    shape_predictor = dlib.shape_predictor(predictor_model_path)
+    detector = dlib.get_frontal_face_detector()
+    dlib_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    dets = detector(dlib_image, 1)
+
+    return dets
+
+
 for i in range(2, 20):
     ret, frame = cam.read()
 
-    # img1 = frame
-    NEW_IMAGE = f"captured_images/{i}.jpg"
-    cv2.imwrite(NEW_IMAGE, frame)
+    face_ = detect_face(frame)
+    print(face_)
 
-    print("initial image reading")
-    img1 = cv2.imread(CURRENT_IMAGE)
-    img2 = cv2.imread(NEW_IMAGE)
-    print(f"---- morphing between {CURRENT_IMAGE} - {NEW_IMAGE}")
+    if face_:
 
-    print("initial landmarking")
-    landmarks_1 = list(landmarks_detector.get_landmarks(CURRENT_IMAGE))[0]
-    landmarks_2 = list(landmarks_detector.get_landmarks(NEW_IMAGE))[0]
+        # img1 = frame
+        NEW_IMAGE = f"captured_images/{i}.jpg"
+        cv2.imwrite(NEW_IMAGE, frame)
+
+        print("initial image reading")
+        img1 = cv2.imread(CURRENT_IMAGE)
+        img2 = cv2.imread(NEW_IMAGE)
+        print(f"---- morphing between {CURRENT_IMAGE} - {NEW_IMAGE}")
+
+        print("initial landmarking")
+        landmarks_1 = list(landmarks_detector.get_landmarks(CURRENT_IMAGE))[0]
+        landmarks_2 = list(landmarks_detector.get_landmarks(NEW_IMAGE))[0]
 
 
-    print("alignment")
-    img1 = image_align(CURRENT_IMAGE, "current_output.png", landmarks_1, output_size=1024) #x_scale=args.x_scale, y_scale=args.y_scale, em_scale=args.em_scale, alpha=args.use_alpha)
-    img2 = image_align(NEW_IMAGE, "new_output.png", landmarks_2, output_size=1024) #x_scale=args.x_scale, y_scale=args.y_scale, em_scale=args.em_scale, alpha=args.use_alpha)
+        print("alignment")
+        img1 = image_align(CURRENT_IMAGE, "__current_output.png", landmarks_1, output_size=1024) #x_scale=args.x_scale, y_scale=args.y_scale, em_scale=args.em_scale, alpha=args.use_alpha)
+        img2 = image_align(NEW_IMAGE, "__new_output.png", landmarks_2, output_size=1024) #x_scale=args.x_scale, y_scale=args.y_scale, em_scale=args.em_scale, alpha=args.use_alpha)
 
-    # print(img1)
-    # print(img2)
+        # print(img1)
+        # print(img2)
 
-    # Resize images to reduce computational load
-    # img1 = cv2.resize(np.array(img1), (320, 240))
-    # img2 = cv2.resize(np.array(img2), (320, 240))
-    print("resizing img 1")
-    # img1 = img1.astype(np.uint8)
-    img1 = cv2.resize(np.array(img1), (1000, 1000))
-    print("resizing again")
+        # Resize images to reduce computational load
+        # img1 = cv2.resize(np.array(img1), (320, 240))
+        # img2 = cv2.resize(np.array(img2), (320, 240))
+        print("resizing img 1")
+        # img1 = img1.astype(np.uint8)
+        img1 = cv2.resize(np.array(img1), (1000, 1000))
+        print("resizing again")
 
-    print("resizing img 2")
-    # img2 = img2.astype(np.uint8)
-    img2 = cv2.resize(np.array(img2), (1000, 1000))
+        print("resizing img 2")
+        # img2 = img2.astype(np.uint8)
+        img2 = cv2.resize(np.array(img2), (1000, 1000))
 
-    # points1 = [(50, 50), (200, 50), (125, 200)]
-    # points2 = [(60, 60), (210, 60), (135, 210)]
-    # tri_list = [(0, 1, 2)]
+        # points1 = [(50, 50), (200, 50), (125, 200)]
+        # points2 = [(60, 60), (210, 60), (135, 210)]
+        # tri_list = [(0, 1, 2)]
 
-    duration = 5  # seconds
-    frame_rate = 10  # frames per second
+        duration = 5  # seconds
+        frame_rate = 10  # frames per second
 
-    size = (240, 320)
-    output_dir = "test_morphs"
+        size = (240, 320)
+        output_dir = "test_morphs"
 
-    print("generating correspondences")
-    [size, img1, img2, points1, points2, list3] = generate_face_correspondences(img1, img2)
+        print("generating correspondences")
+        [size, img1, img2, points1, points2, list3] = generate_face_correspondences(img1, img2)
 
-    print("making delauney")
-    tri = make_delaunay(size[1], size[0], list3, img1, img2)
+        print("making delauney")
+        tri = make_delaunay(size[1], size[0], list3, img1, img2)
 
-    # size is not used here
-    generate_morph_sequence(duration, frame_rate, img1, img2, points1, points2, tri, size, output_dir, iteration=i)
+        # size is not used here
+        generate_morph_sequence(duration, frame_rate, img1, img2, points1, points2, tri, size, output_dir, iteration=i)
 
-    CURRENT_IMAGE = NEW_IMAGE
+        CURRENT_IMAGE = NEW_IMAGE
+        time.sleep(1)
+    
+
+    else:
+        time.sleep(5)
