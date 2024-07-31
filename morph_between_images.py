@@ -250,15 +250,19 @@ def crop_image_help(img1,img2):
 
 def generate_face_correspondences(theImage1, theImage2):
     # Detect the points of face.
+    print("generate_face_correspondences - detecting!")
     detector = dlib.get_frontal_face_detector()
     predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
     corresp = np.zeros((68,2))
 
+    print("generate_face_correspondences - cropping")
     imgList = crop_image(theImage1,theImage2)
     list1 = []
     list2 = []
     j = 1
 
+
+    print("generate_face_correspondences - loop")
     for img in imgList:
 
         size = (img.shape[0],img.shape[1])
@@ -305,6 +309,7 @@ def generate_face_correspondences(theImage1, theImage2):
             currList.append((size[1]-1,size[0]-1))
             currList.append(((size[1]-1),(size[0]-1)//2))
 
+    print("generate_face_correspondences - adding back")
     # Add back the background
     narray = corresp/2
     narray = np.append(narray,[[1,1]],axis=0)
@@ -315,6 +320,8 @@ def generate_face_correspondences(theImage1, theImage2):
     narray = np.append(narray,[[(size[1]-1)//2,size[0]-1]],axis=0)
     narray = np.append(narray,[[size[1]-1,size[0]-1]],axis=0)
     narray = np.append(narray,[[(size[1]-1),(size[0]-1)//2]],axis=0)
+
+    print("generate_face_correspondences - finishing up!")
     
     return [size,imgList[0],imgList[1],list1,list2,narray]
 
