@@ -426,8 +426,8 @@ def detect_face(frame):
 
     return dets
 
-
-for i in range(2, 20):
+i = 2
+while True:
     if CAM == "webcam":
         ret, frame = cam.read()
     elif CAM == "picam":
@@ -492,6 +492,7 @@ for i in range(2, 20):
         generate_morph_sequence(duration, frame_rate, img1, img2, points1, points2, tri, size, output_dir, iteration=i)
 
         CURRENT_IMAGE = NEW_IMAGE
+        i += 1
         time.sleep(1)
     
 
