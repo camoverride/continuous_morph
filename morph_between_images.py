@@ -418,13 +418,13 @@ print("resizing img 1")
 # img1 = img1.astype(np.uint8)
 img1 = cv2.resize(np.array(img1), (1000, 1000))
 print("resizing again")
-img1 = cv2.resive(img1, (1500, 1500))
+img1 = cv2.resize(img1, (1500, 1500))
 
 print("resizing img 2")
 # img2 = img2.astype(np.uint8)
 img2 = cv2.resize(np.array(img2), (1000, 1000))
 print("resizing again")
-img2 = cv2.resive(img2, (1500, 1500))
+img2 = cv2.resize(img2, (1500, 1500))
 
 # points1 = [(50, 50), (200, 50), (125, 200)]
 # points2 = [(60, 60), (210, 60), (135, 210)]
