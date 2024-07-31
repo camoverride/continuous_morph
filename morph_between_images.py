@@ -397,7 +397,7 @@ def make_delaunay(f_w, f_h, theList, img1, img2):
 
 landmarks_detector = LandmarksDetector()
 
-with open('config.yml', 'r') as file:
+with open('config.yaml', 'r') as file:
     config = yaml.safe_load(file)
 
 
