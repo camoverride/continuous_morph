@@ -50,17 +50,20 @@ def generate_morph_sequence(duration, frame_rate, img1, img2, points1, points2, 
         alpha = j / (num_images - 1)
         points = [(int((1 - alpha) * x1 + alpha * x2), int((1 - alpha) * y1 + alpha * y2)) for (x1, y1), (x2, y2) in zip(points1, points2)]
         
+        print("generating empty morphed frame")
         morphed_frame = np.zeros_like(img1, dtype=img1.dtype)
         
+        print("morphing")
         for i in range(len(tri_list)):
             x, y, z = tri_list[i]
             t1, t2, t = [points1[x], points1[y], points1[z]], [points2[x], points2[y], points2[z]], [points[x], points[y], points[z]]
             morph_triangle(img1, img2, morphed_frame, t1, t2, t, alpha)
         
+        print("writing")
         # res = Image.fromarray(cv2.cvtColor(np.uint8(morphed_frame), cv2.COLOR_BGR2RGB))
         # res.save(os.path.join(output_dir, f"frame_{j:04d}.jpg"), 'JPEG')
         cv2.imwrite(os.path.join(output_dir, f"frame_{j:04d}.jpg"), morphed_frame)
-        print("saving!")
+        print("saved!")
         del morphed_frame  # Explicitly delete the variable to free up memory
         del res
         del morphed_frame
