@@ -67,10 +67,9 @@ def generate_morph_sequence(duration, frame_rate, img1, img2, points1, points2, 
         print("saved!")
         print("------")
 
-
 def image_align(src_file, dst_file, face_landmarks, output_size=1024, transform_size=4096, enable_padding=True, x_scale=1, y_scale=1, em_scale=0.1, alpha=False):
     lm = np.array(face_landmarks)
-    lm_chin          = lm[0  : 17]  # left-right
+    lm_chin          = lm[0 : 17]  # left-right
     lm_eyebrow_left  = lm[17 : 22]  # left-right
     lm_eyebrow_right = lm[22 : 27]  # left-right
     lm_nose          = lm[27 : 31]  # top-down
@@ -122,8 +121,7 @@ def image_align(src_file, dst_file, face_landmarks, output_size=1024, transform_
         y, x, _ = np.ogrid[:h, :w, :1]
         mask = np.maximum(1.0 - np.minimum(np.float32(x) / pad[0], np.float32(w-1-x) / pad[2]), 1.0 - np.minimum(np.float32(y) / pad[1], np.float32(h-1-y) / pad[3]))
         blur = qsize * 0.02
-        img += (scipy.ndimage.gaussian_filter(img, [blur, blur, 0]) - img) * np.clip(mask * 3.0 + 1.0, 0.0, 1.0)
-        img += (np.median(img, axis=(0,1)) - img) * np.clip(mask, 0.0, 1.0)
+        img = img + (scipy.ndimage.gaussian_filter(img, [blur, blur, 0]).astype(np.float32) - img) * np.clip(mask * 3.0 + 1.0, 0.0, 1.0)
         img = np.uint8(np.clip(np.rint(img), 0, 255))
         quad += pad[:2]
 
@@ -134,6 +132,7 @@ def image_align(src_file, dst_file, face_landmarks, output_size=1024, transform_
     cv2.imwrite(dst_file, img)
 
     return img
+
 
 class LandmarksDetector:
     def __init__(self, predictor_model_path='shape_predictor_68_face_landmarks.dat'):
