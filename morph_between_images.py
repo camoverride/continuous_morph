@@ -436,6 +436,7 @@ for i in range(2, 20):
     face_ = detect_face(frame)
     print(face_)
 
+    cv2.imwrite("__debug_cam_img.jpg", frame)
     if face_:
 
         # img1 = frame
