@@ -57,8 +57,9 @@ def generate_morph_sequence(duration, frame_rate, img1, img2, points1, points2, 
             t1, t2, t = [points1[x], points1[y], points1[z]], [points2[x], points2[y], points2[z]], [points[x], points[y], points[z]]
             morph_triangle(img1, img2, morphed_frame, t1, t2, t, alpha)
         
-        res = Image.fromarray(cv2.cvtColor(np.uint8(morphed_frame), cv2.COLOR_BGR2RGB))
-        res.save(os.path.join(output_dir, f"frame_{j:04d}.jpg"), 'JPEG')
+        # res = Image.fromarray(cv2.cvtColor(np.uint8(morphed_frame), cv2.COLOR_BGR2RGB))
+        # res.save(os.path.join(output_dir, f"frame_{j:04d}.jpg"), 'JPEG')
+        cv2.imwrite(os.path.join(output_dir, f"frame_{j:04d}.jpg"), morphed_frame)
         print("saving!")
         del morphed_frame  # Explicitly delete the variable to free up memory
         del res
