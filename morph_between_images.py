@@ -57,28 +57,21 @@ def generate_morph_sequence(duration, frame_rate, img1, img2, points1, points2, 
     num_images = int(duration * frame_rate)
     
     for j in range(num_images):
-        print("generating alpha")
         alpha = j / (num_images - 1)
 
-        print("generating points")
         points = [(int((1 - alpha) * x1 + alpha * x2), int((1 - alpha) * y1 + alpha * y2)) for (x1, y1), (x2, y2) in zip(points1, points2)]
 
-        print("generating zeros")
         morphed_frame = np.zeros_like(img1, dtype=img1.dtype)
 
-        print("morphine triangles (loop)")
         for i in range(len(tri_list)):
             x, y, z = tri_list[i]
             t1, t2, t = [points1[x], points1[y], points1[z]], [points2[x], points2[y], points2[z]], [points[x], points[y], points[z]]
             morph_triangle(img1, img2, morphed_frame, t1, t2, t, alpha)
 
-        print("writing image")
         res = Image.fromarray(cv2.cvtColor(np.uint8(morphed_frame), cv2.COLOR_BGR2RGB))
 
-        print("saving imae")
-        res.save(os.path.join(output_dir, f"{iteration}_{j:03d}.jpg"), 'JPEG')
-        print("saved!")
-        print("------")
+        res.save(os.path.join(output_dir, f"{iteration - 1}-{iteration}_{j:03d}.jpg"), 'JPEG')
+        print("saved image!")
 
 
 def image_align(src_file, dst_file, face_landmarks, output_size=1024, transform_size=4096, enable_padding=True, x_scale=1, y_scale=1, em_scale=0.1, alpha=False):
