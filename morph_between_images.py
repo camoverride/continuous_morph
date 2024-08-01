@@ -76,7 +76,7 @@ def generate_morph_sequence(duration, frame_rate, img1, img2, points1, points2, 
         res = Image.fromarray(cv2.cvtColor(np.uint8(morphed_frame), cv2.COLOR_BGR2RGB))
 
         print("saving imae")
-        res.save(os.path.join(output_dir, f"{iteration}frame_{j:04d}.jpg"), 'JPEG')
+        res.save(os.path.join(output_dir, f"{iteration}_{j:03d}.jpg"), 'JPEG')
         print("saved!")
         print("------")
 
@@ -459,8 +459,8 @@ if __name__ == "__main__":
         face = detect_face(gray)
 
         if face:
-            print("Face detected!")
             # Write the new image.
+            print("Face detected!")
             NEW_IMAGE = f"captured_images/{face_capture_index}.jpg"
             cv2.imwrite(NEW_IMAGE, frame)
 
@@ -472,40 +472,22 @@ if __name__ == "__main__":
             # Get the landmarks
             landmarks_1 = get_landmarks(CURRENT_IMAGE)
             landmarks_2 = get_landmarks(NEW_IMAGE)
-            print(landmarks_1)
 
             # Align the images
             img1 = image_align(CURRENT_IMAGE, "__current_output.png", landmarks_1, output_size=1024) #x_scale=args.x_scale, y_scale=args.y_scale, em_scale=args.em_scale, alpha=args.use_alpha)
             img2 = image_align(NEW_IMAGE, "__new_output.png", landmarks_2, output_size=1024) #x_scale=args.x_scale, y_scale=args.y_scale, em_scale=args.em_scale, alpha=args.use_alpha)
 
-            # print(img1)
-            # print(img2)
-
             # Resize images to reduce computational load
-            # img1 = cv2.resize(np.array(img1), (320, 240))
-            # img2 = cv2.resize(np.array(img2), (320, 240))
             img1 = np.array(img1)
             img2 = np.array(img2)
-            # print("resizing img 1")
-            # img1 = img1.astype(np.uint8)
-            # img1 = cv2.resize(np.array(img1), (1000, 1000))
-            # print("resizing again")
 
-            # print("resizing img 2")
-            # img2 = img2.astype(np.uint8)
-            # img2 = cv2.resize(np.array(img2), (1000, 1000))
-
-            # points1 = [(50, 50), (200, 50), (125, 200)]
-            # points2 = [(60, 60), (210, 60), (135, 210)]
-            # tri_list = [(0, 1, 2)]
-
-            print("generating correspondences")
+            # Generate correspondences
             [size, img1, img2, points1, points2, list3] = generate_face_correspondences(img1, img2)
 
-            print("making delauney")
+            # Get the delauney triangle
             tri = make_delaunay(size[1], size[0], list3, img1, img2)
 
-            # size is not used here
+            # Generate the morph sequence
             generate_morph_sequence(duration=5,
                                     frame_rate=10,
                                     img1=img1,
