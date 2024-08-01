@@ -442,7 +442,7 @@ while True:
     print(face_)
 
     cv2.imwrite("__debug_cam_img.jpg", frame)
-    if face_:
+    if 1==1:
         try:
 
             # img1 = frame
