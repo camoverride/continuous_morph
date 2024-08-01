@@ -173,26 +173,6 @@ def image_align(src_file, dst_file, face_landmarks, output_size=1024, transform_
     return img
 
 
-class LandmarksDetector:
-    def __init__(self, predictor_model_path='shape_predictor_68_face_landmarks.dat'):
-        """
-        :param predictor_model_path: path to shape_predictor_68_face_landmarks.dat file
-        """
-        self.detector = dlib.get_frontal_face_detector() # cnn_face_detection_model_v1 also can be used
-        self.shape_predictor = dlib.shape_predictor(predictor_model_path)
-
-    def get_landmarks(self, image):
-        img = dlib.load_rgb_image(image)
-        dets = self.detector(img, 1)
-
-        for detection in dets:
-            try:
-                face_landmarks = [(item.x, item.y) for item in self.shape_predictor(img, detection).parts()]
-                yield face_landmarks
-            except:
-                print("Exception in get_landmarks()!")
-
-
 class NoFaceFound(Exception):
    """Raised when there is no face found"""
    pass
@@ -413,9 +393,37 @@ def detect_face(frame):
     return dets
 
 
+
+class LandmarksDetector:
+    def __init__(self, predictor_model_path='shape_predictor_68_face_landmarks.dat'):
+        """
+        :param predictor_model_path: path to shape_predictor_68_face_landmarks.dat file
+        """
+        self.detector = dlib.get_frontal_face_detector() # cnn_face_detection_model_v1 also can be used
+        self.shape_predictor = dlib.shape_predictor(predictor_model_path)
+
+    def get_landmarks(self, image):
+        img = dlib.load_rgb_image(image)
+        dets = self.detector(img, 1)
+
+        for detection in dets:
+            try:
+                face_landmarks = [(item.x, item.y) for item in self.shape_predictor(img, detection).parts()]
+                yield face_landmarks
+            except:
+                print("Exception in get_landmarks()!")
+
+# Load model
+landmarks_detector = LandmarksDetector()
+def get_landmarks(face_image):
+    """
+    Gets the face landmarks in an image that contains a face.
+    """
+    return list(landmarks_detector.get_landmarks(face_image))[0]
+
+
 if __name__ == "__main__":
-    # Load model
-    landmarks_detector = LandmarksDetector()
+
 
     # Load config
     with open('config.yaml', 'r') as file:
@@ -451,8 +459,9 @@ if __name__ == "__main__":
         face = detect_face(gray)
 
         if face:
+            print("Face detected!")
             # Write the new image.
-            NEW_IMAGE = f"captured_images/{i}.jpg"
+            NEW_IMAGE = f"captured_images/{face_capture_index}.jpg"
             cv2.imwrite(NEW_IMAGE, frame)
 
             # Load the current face image and new face image
@@ -461,8 +470,9 @@ if __name__ == "__main__":
             img2 = cv2.imread(NEW_IMAGE)
 
             # Get the landmarks
-            landmarks_1 = list(landmarks_detector.get_landmarks(CURRENT_IMAGE))[0]
-            landmarks_2 = list(landmarks_detector.get_landmarks(NEW_IMAGE))[0]
+            landmarks_1 = get_landmarks(CURRENT_IMAGE)
+            landmarks_2 = get_landmarks(NEW_IMAGE)
+            print(landmarks_1)
 
             # Align the images
             img1 = image_align(CURRENT_IMAGE, "__current_output.png", landmarks_1, output_size=1024) #x_scale=args.x_scale, y_scale=args.y_scale, em_scale=args.em_scale, alpha=args.use_alpha)
@@ -502,7 +512,7 @@ if __name__ == "__main__":
                                     img2=img2,
                                     points1=points1,
                                     points2=points2,
-                                    tri=tri,
+                                    tri_list=tri,
                                     size=(240, 320),
                                     output_dir="test_morphs",
                                     iteration=face_capture_index)
