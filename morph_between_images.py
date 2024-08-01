@@ -413,7 +413,7 @@ elif CAM == "picam":
     picam2.start()
 
 
-cv2.namedWindow("test")
+# cv2.namedWindow("test")
 
 
 
@@ -471,8 +471,10 @@ while True:
         # print(img2)
 
         # Resize images to reduce computational load
-        img1 = cv2.resize(np.array(img1), (320, 240))
-        img2 = cv2.resize(np.array(img2), (320, 240))
+        # img1 = cv2.resize(np.array(img1), (320, 240))
+        # img2 = cv2.resize(np.array(img2), (320, 240))
+        img1 = np.array(img1)
+        img2 = np.array(img2)
         # print("resizing img 1")
         # img1 = img1.astype(np.uint8)
         # img1 = cv2.resize(np.array(img1), (1000, 1000))
