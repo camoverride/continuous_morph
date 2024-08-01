@@ -441,17 +441,13 @@ while True:
 
     print(face_)
 
-    cv2.imwrite("__debug_cam_img.jpg", frame)
-    if 1==1:
+    # cv2.imwrite("__debug_cam_img.jpg", frame)
+    if face_:
 
         # img1 = frame
         NEW_IMAGE = f"captured_images/{i}.jpg"
         cv2.imwrite(NEW_IMAGE, frame)
 
-        ### DEBUG 
-        NEW_IMAGE =     "captured_images/1.jpg"
-        CURRENT_IMAGE = "captured_images/1.jpg"
-        ### DEBUG
 
         print("initial image reading")
         img1 = cv2.imread(CURRENT_IMAGE)
