@@ -451,7 +451,7 @@ while True:
 
             ### DEBUG
             NEW_IMAGE = "captured_images/1.jpg"
-            CURRENT_IMAGE = "captured_images/6.jpg"
+            CURRENT_IMAGE = "captured_images/2.jpg"
             ### DEBUG
 
             print("initial image reading")
