@@ -409,6 +409,7 @@ if CAM == "webcam":
 elif CAM == "picam":
     from picamera2 import Picamera2
     picam2 = Picamera2()
+    picam2.configure(picam2.create_preview_configuration(main={"format": 'RGB888', "size": (640, 480)}))
     picam2.start()
 
 
@@ -435,7 +436,9 @@ while True:
     elif CAM == "picam":
         frame = picam2.capture_array()
 
-    face_ = detect_face(frame)
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    face_ = detect_face(gray)
+
     print(face_)
 
     cv2.imwrite("__debug_cam_img.jpg", frame)
