@@ -1,0 +1,17 @@
+; Line 14 (ExecStart) might change depending on tour
+
+[Unit]
+Description=recording loop
+After=multi-user.target
+StartLimitIntervalSec=30
+StartLimitBurst=2
+
+[Service]
+Type=simple
+User=pi
+Restart=always
+WorkingDirectory=/home/pi/face_yourself
+ExecStart=sudo /home/pi/.venv/bin/python /home/pi/face_yourself/run_recording_loop.py
+
+[Install]
+WantedBy=multi-user.target
